@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:cxf="http://camel.apache.org/schema/cxf"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd         http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd         http://camel.apache.org/schema/cxf http://camel.apache.org/schema/cxf/camel-cxf.xsd        ">
+    <camelContext id="jaxws-hello-world-cxf" trace="false" xmlns="http://camel.apache.org/schema/spring">
+        <dataFormats>
+            <soapjaxb contextPath="net.webservicex" id="soapFormat"/>
+            <soapjaxb contextPath="ws.soap" id="soapFormatws"/>
+        </dataFormats>
+        <route id="wsRoute">
+            <from id="_from1" uri="direct:start"/>
+            <process id="prcosee1" ref="processMsg"/>
+            <log id="_logProcess" loggingLevel="INFO" message=">>>  Msg After Process :${body}"/>
+            <marshal id="_marshal1" ref="soapFormatws"/>
+            <log id="_log1" loggingLevel="INFO" message=">>>  jaxws :${body}"/>
+            <to id="_to1" uri="cxf:bean:jaxws-name?dataFormat=MESSAGE"/>
+            <unmarshal id="_unmarshal1" ref="soapFormatws"/>
+        </route>
+    </camelContext>
+    <cxf:cxfEndpoint
+        address="http://localhost:8080/SOAP-WS/SoapWSServer"
+        endpointName="{http://soap.ws/}SoapWSServerPort" id="jaxws-name" serviceClass="ws.soap.SoapWSServerService"/>
+    <!-- <cxf:cxfEndpoint id="jaxws-name1"   serviceClass="ws.soap.SoapWSServerService"   />-->
+    <bean class="org.test.ProcessMsg" id="processMsg"/>
+    <bean class="org.test.InterCeptUnMarshall" id="IntercepUnmarshallt"/>
+</beans>

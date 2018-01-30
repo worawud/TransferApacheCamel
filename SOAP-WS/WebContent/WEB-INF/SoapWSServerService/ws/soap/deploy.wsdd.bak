@@ -1,0 +1,30 @@
+<!-- Use this file to deploy some handlers/chains and services      -->
+<!-- Two ways to do this:                                           -->
+<!--   java org.apache.axis.client.AdminClient deploy.wsdd          -->
+<!--      after the axis server is running                          -->
+<!-- or                                                             -->
+<!--   java org.apache.axis.utils.Admin client|server deploy.wsdd   -->
+<!--      from the same directory that the Axis engine runs         -->
+
+<deployment
+    xmlns="http://xml.apache.org/axis/wsdd/"
+    xmlns:java="http://xml.apache.org/axis/wsdd/providers/java">
+
+  <!-- Services from SoapWSServerService WSDL service -->
+
+  <service name="SoapWSServer" provider="java:RPC" style="wrapped" use="literal">
+      <parameter name="wsdlTargetNamespace" value="http://soap.ws"/>
+      <parameter name="wsdlServiceElement" value="SoapWSServerService"/>
+      <parameter name="schemaQualified" value="http://soap.ws"/>
+      <parameter name="wsdlServicePort" value="SoapWSServer"/>
+      <parameter name="className" value="ws.soap.SoapWSServerSoapBindingImpl"/>
+      <parameter name="wsdlPortType" value="SoapWSServer"/>
+      <parameter name="typeMappingVersion" value="1.2"/>
+      <operation name="getUserName" qname="operNS:getUserName" xmlns:operNS="http://soap.ws" returnQName="retNS:getUserNameReturn" xmlns:retNS="http://soap.ws" returnType="rtns:string" xmlns:rtns="http://www.w3.org/2001/XMLSchema" soapAction="" >
+        <parameter qname="pns:name" xmlns:pns="http://soap.ws" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:lname" xmlns:pns="http://soap.ws" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+      </operation>
+      <parameter name="allowedMethods" value="getUserName"/>
+
+  </service>
+</deployment>

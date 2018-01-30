@@ -1,0 +1,57 @@
+<?xml version='1.0' encoding='UTF-8'?><wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://soap.ws/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http" name="SoapWSServerService" targetNamespace="http://soap.ws/">
+  <wsdl:types>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://soap.ws/" elementFormDefault="unqualified" targetNamespace="http://soap.ws/" version="1.0">
+
+  <xs:element name="getUserName" type="tns:getUserName"/>
+
+  <xs:element name="getUserNameResponse" type="tns:getUserNameResponse"/>
+
+  <xs:complexType name="getUserName">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="arg0" type="xs:string"/>
+      <xs:element minOccurs="0" name="arg1" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="getUserNameResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>
+  </wsdl:types>
+  <wsdl:message name="getUserName">
+    <wsdl:part element="tns:getUserName" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getUserNameResponse">
+    <wsdl:part element="tns:getUserNameResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="SoapWSServer">
+    <wsdl:operation name="getUserName">
+      <wsdl:input message="tns:getUserName" name="getUserName">
+    </wsdl:input>
+      <wsdl:output message="tns:getUserNameResponse" name="getUserNameResponse">
+    </wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="SoapWSServerServiceSoapBinding" type="tns:SoapWSServer">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="getUserName">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getUserName">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getUserNameResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="SoapWSServerService">
+    <wsdl:port binding="tns:SoapWSServerServiceSoapBinding" name="SoapWSServerPort">
+      <soap:address location="http://localhost:8080/SOAP-WS/SoapWSServer"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:camel="http://camel.apache.org/schema/spring"
+    xmlns:jee="http://www.springframework.org/schema/jee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd             http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd        http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.0.xsd">
+    <camelContext id="myBatisAndCamel" trace="false" xmlns="http://camel.apache.org/schema/spring">
+        <!-- route that generate new orders and insert them in the database -->
+        <route id="generateOrder-route">
+            <!-- <loop id="_loop1">
+                <constant>5</constant>-->
+            <!-- <from id="_from1" uri="timer:test?period=5s&amp;repeatCount=2"/>-->
+            <!-- </loop>-->
+            <from id="durableJobFromEndpoint" uri="quartz2://myGroup/quartz2-camel?cron=0/5+*+*+*+*+?"/>
+            <log id="_log1" loggingLevel="INFO" message="before insert:"/>
+            <transform id="_transform1">
+                <method method="generateOrder" ref="orderService"/>
+            </transform>
+            <to id="_to1" uri="mybatis:insertOrder?statementType=Insert"/>
+            <log id="_log1" message="Inserted new order ${body.id}"/>
+        </route>
+        <!-- route that process the orders by picking up new rows from the database
+		       and when done processing then update the row to mark it as processed -->
+        <route id="processOrder-route">
+            <!-- <from id="_from1" uri="timer:test?period=5s&amp;repeatCount=1"/>-->
+            <!-- <from id="_from2" uri="mybatis:selectOrders?statementType=SelectList&amp;consumer.onConsume=consumeOrder"/>-->
+            <!-- <process id="_process1" ref="PollingInterCept"/>-->
+            <from id="_from2" uri="mybatis:selectOrders?statementType=SelectList&amp;consumer.onConsume=consumeOrder"/>
+            <to id="_to2" uri="bean:orderService?method=processOrder"/>
+            <to id="_to3" uri="direct:start"/>
+        </route>
+        <route id="processOrder-route2">
+            <from id="_to5" uri="direct:start"/>
+            <log id="_log2" message="pass to jms:${body}"/>
+            <to id="_toQ" pattern="InOnly" uri="jms:queue:pikachu"/>
+        </route>
+    </camelContext>
+    <!-- <bean class="org.apache.camel.example.mybatis.DatabaseBean"
+        destroy-method="destroy" id="initDatabase" init-method="create">
+        <property name="camelContext" ref="camelContext-polling"/>
+    </bean>-->
+    <!-- START SNIPPET: e1 -->
+    <!-- bean which creates/destroys the database table for this example -->
+    <bean
+        class="org.apache.camel.example.mybatis.DatabaseInitializationBean"
+        destroy-method="drop" id="initDatabase" init-method="create">
+        <property name="url" value="jdbc:derby:memory:mybatis"/>
+        <!--<property name="camelContext" ref="myBatisAndCamel"/>-->
+    </bean>
+    <!-- END SNIPPET: e1 -->
+    <bean class="org.apache.camel.example.mybatis.OrderService" id="orderService"/>
+    <!-- <bean class="org.test.PollingInterCept" id="PollingInterCept"/>-->
+    <bean class="org.apache.camel.component.jms.JmsComponent" id="jms">
+        <property name="connectionFactory" ref="myConnectionFactory"/>
+    </bean>
+    <jee:jndi-lookup id="myConnectionFactory" jndi-name="java:/ConnectionFactory"/>
+</beans>
